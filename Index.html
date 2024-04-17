@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            outline: none;
+        }
+
+        input, img{
+            position: absolute;
+            top: 5px;
+        }
+
+        input:nth-child(1) {
+            left: calc(50% - 120px);
+            width: 30px;
+        }
+
+        input:nth-child(2) {
+            top: 10px;
+            left: calc(50% - 85px);
+            width: 60px;
+        }
+
+        input:nth-child(3) {
+            left: calc(50% + 70px);
+            background-color: black;
+            color: white;
+            border-radius: 20px;
+            padding: 0 7px 0 7px;
+            border: 2px dotted white;
+        }
+
+        input:nth-child(4) {
+            left: calc(50% - 20px);
+            width: 30px;
+        }
+        
+        #eraser {
+            left: calc(50% + 15px);
+        }
+
+        #pen {
+            left: calc(50% + 42px);
+        }
+
+    
+        img {
+            width: 25px;
+            height: 25px;
+        }
+
+        select {
+            position: absolute;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <form>
+        <input type="color" id="clr">
+        <input type="range" min="0" max="50" value="15" id="size">
+        <input type="button" value="reset" id="r">
+        <input type="color" id="clr2" value="#FFFFFF">
+        
+        <img src="https://dl.dropbox.com/s/i5cik80ps4fcaqv/eraser.svg" alt="Eraser" id="eraser">
+        <img src="https://dl.dropbox.com/s/dxfq0lj6n7n2th8/brush.svg" alt="pen" id="pen">
+    </form>
+    <script>
+        window.addEventListener('load', () => {
+            let canvas = document.getElementById('canvas')
+            let ctx = canvas.getContext('2d')
+
+            canvas.height = window.innerHeight * 2
+            canvas.width = window.innerWidth
+            let clr2 = document.getElementById('clr2')
+            
+            clr2.onchange = function () {
+                ctx.globalCompositeOperation="source-over";
+                let a = clr2.value
+                ctx.fillStyle = a; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height); 
+                
+            }
+            let painting = false
+
+            function startPosition(e) {
+                painting = true
+                draw(e)
+            }
+            function finishedPosition() {
+                painting = false
+                ctx.beginPath()
+
+            }
+
+            function draw(e) {
+                if (e.cancelable) { e.preventDefault(); }
+                if (!painting) return
+                let size = document.getElementById('size')
+                let y = size.value
+                ctx.lineWidth = y
+                ctx.lineCap = "round"
+                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY)
+                let clr = document.getElementById('clr')
+                let x = clr.value
+                ctx.strokeStyle = x
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY)
+            }
+            function draw2(e) {
+                if (!painting) return
+                let size = document.getElementById('size')
+                let y = size.value
+                ctx.lineWidth = y
+                ctx.lineCap = "round"
+                ctx.lineTo(e.clientX, e.clientY)
+                let clr = document.getElementById('clr')
+                let x = clr.value
+                ctx.strokeStyle = x
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(e.clientX, e.clientY)
+            }
+
+            function f3() {
+                ctx.globalCompositeOperation="source-over";
+            }
+
+            function f2(e) {
+                ctx.globalCompositeOperation="destination-out";
+                ctx.arc(e.clientX, e.clientY,8,0,Math.PI*2,false);
+                ctx.fill();
+            }
+
+            function f() {
+                ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+
+
+
+            let r = document.getElementById('r')
+            let eraser = document.getElementById('eraser')
+            let pen = document.getElementById('pen')
+
+
+            canvas.addEventListener("touchstart", startPosition)
+            canvas.addEventListener("touchend", finishedPosition)
+            canvas.addEventListener("touchmove", draw)
+
+            canvas.addEventListener("mousedown", startPosition)
+            canvas.addEventListener("mouseup", finishedPosition)
+            canvas.addEventListener("mousemove", draw2)
+
+            r.addEventListener("click", f)
+            eraser.addEventListener("click", f2)
+            pen.addEventListener("click", f3)
+
+
+        })
+
+    </script>
+</body>
+
+</html>
